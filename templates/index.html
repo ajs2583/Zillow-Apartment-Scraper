@@ -1,7 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
     <div class="container">
-        <h1>Zillow Listings</h1>
+        <h1>
+            Zillow Listings{% if city %} in {{ city }}{% endif %}
+            {% if max_price %}(Under ${{ max_price }}){% endif %}
+        </h1>
         <table>
             <thead>
                 <tr>

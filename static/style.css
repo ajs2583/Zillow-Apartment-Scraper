@@ -35,6 +35,19 @@ body {
     background: #0056b3;
 }
 
+.search-form {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.search-form input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
 .container {
     max-width: 900px;
     margin: 30px auto;

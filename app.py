@@ -1,10 +1,31 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import requests
 from bs4 import BeautifulSoup
 
 ZILLOW_URL = "https://www.zillow.com/homes/for_rent/1-_beds/"
+ZILLOW_BASE = "https://www.zillow.com/homes/for_rent/"
 
 app = Flask(__name__)
+
+
+def build_url(city: str | None) -> str:
+    """Return a Zillow search URL for the given city."""
+    if not city:
+        return ZILLOW_URL
+    city_path = city.strip().replace(" ", "-")
+    return f"{ZILLOW_BASE}{city_path}_rb/"
+
+
+def _price_to_int(price: str | None) -> int | None:
+    """Convert a price string like '$2,500/mo' to an integer."""
+    if not price:
+        return None
+    import re
+
+    digits = re.findall(r"\d+", price.replace(",", ""))
+    if not digits:
+        return None
+    return int("".join(digits))
 
 HEADER = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
@@ -22,10 +43,11 @@ HEADER = {
 }
 
 
-def scrape_listings():
+def scrape_listings(city: str | None = None):
     """Scrape listing data from Zillow search results."""
 
-    response = requests.get(url=ZILLOW_URL, headers=HEADER)
+    url = build_url(city)
+    response = requests.get(url=url, headers=HEADER)
     soup = BeautifulSoup(response.text, "html.parser")
 
     data_script = soup.find("script", id="__NEXT_DATA__", type="application/json")
@@ -68,8 +90,23 @@ def home():
 
 @app.route('/listings')
 def index():
-    listings = scrape_listings()
-    return render_template('index.html', listings=listings)
+    city = request.args.get('city')
+    max_price = request.args.get('max_price', type=int)
+
+    listings = scrape_listings(city)
+
+    if max_price is not None:
+        listings = [
+            l for l in listings
+            if (_price_to_int(l.get('price')) or 0) <= max_price
+        ]
+
+    return render_template(
+        'index.html',
+        listings=listings,
+        city=city,
+        max_price=max_price,
+    )
 
 
 if __name__ == '__main__':
