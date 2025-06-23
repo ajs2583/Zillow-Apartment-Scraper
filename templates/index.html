@@ -14,8 +14,14 @@
             {% for listing in listings %}
                 <tr>
                     <td>{{ listing.address }}</td>
-                    <td>{{ listing.price }}</td>
-                    <td><a href="{{ listing.link }}" target="_blank">View</a></td>
+                    <td>{{ listing.price or 'N/A' }}</td>
+                    <td>
+                        {% if listing.link %}
+                        <a href="{{ listing.link }}" target="_blank">View</a>
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>

@@ -55,6 +55,14 @@ table {
     margin-top: 20px;
 }
 
+tbody tr:nth-child(even) {
+    background-color: #f8f8f8;
+}
+
+th {
+    text-align: left;
+}
+
 thead {
     background-color: #007BFF;
     color: white;
