@@ -8,6 +8,7 @@ This project scrapes apartment listings directly from Zillow and optionally subm
 - Submits each listing to a Google Form
 - Web interface for viewing scraped listings
 - Data is saved into a linked Google Sheet when using the auto‑filler
+- Search by city and filter listings by price range in the web UI
 - Browser closes automatically when done
 
 ## Requirements
@@ -42,7 +43,7 @@ Flask
 python app.py
 ```
 
-Visit `http://127.0.0.1:5000` in your browser and click **View Listings** to fetch the latest results.
+Visit `http://127.0.0.1:5000` in your browser. Enter a city and optional price range to search for listings.
 
 Alternatively, run the command‑line script to automatically fill the form:
 

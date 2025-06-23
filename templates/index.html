@@ -2,6 +2,12 @@
 {% block content %}
     <div class="container">
         <h1>Zillow Listings</h1>
+        <form action="{{ url_for('index') }}" method="get" class="search-form">
+            <input type="text" name="city" placeholder="City" value="{{ city }}">
+            <input type="number" name="min_price" placeholder="Min price" value="{{ min_price }}">
+            <input type="number" name="max_price" placeholder="Max price" value="{{ max_price }}">
+            <button type="submit" class="btn">Search</button>
+        </form>
         <table>
             <thead>
                 <tr>

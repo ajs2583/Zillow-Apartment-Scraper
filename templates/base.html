@@ -8,11 +8,11 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <nav class="navbar">
+    <header class="header">
         <div class="container">
-            <a href="/" class="logo">Zillow Scraper</a>
+            <h1 class="logo">Zillow Scraper</h1>
         </div>
-    </nav>
+    </header>
     {% block content %}{% endblock %}
 </body>
 </html>
