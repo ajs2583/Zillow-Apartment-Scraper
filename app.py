@@ -2,7 +2,7 @@ from flask import Flask, render_template
 import requests
 from bs4 import BeautifulSoup
 
-CLONE_URL = "https://appbrewery.github.io/Zillow-Clone/"
+ZILLOW_URL = "https://www.zillow.com/homes/for_rent/1-_beds/"
 
 app = Flask(__name__)
 
@@ -23,26 +23,43 @@ HEADER = {
 
 
 def scrape_listings():
-    response = requests.get(url=CLONE_URL, headers=HEADER)
+    """Scrape listing data from Zillow search results."""
+
+    response = requests.get(url=ZILLOW_URL, headers=HEADER)
     soup = BeautifulSoup(response.text, "html.parser")
 
-    address_elements = soup.find_all('address', {"data-test": "property-card-addr"})
-    addresses = [addr.get_text(strip=True).replace("|", "") for addr in address_elements]
+    data_script = soup.find("script", id="__NEXT_DATA__", type="application/json")
+    listings = []
+    if not data_script:
+        return listings
 
-    price_elements = soup.find_all('span', class_="PropertyCardWrapper__StyledPriceLine")
-    prices = [
-        price.get_text(strip=True).replace("+/mo", "").replace("/mo", "").replace("+ 1 bd", "").replace("+ 1bd", "")
-        for price in price_elements
-    ]
+    try:
+        import json
 
-    address_links = soup.find_all('a', {"data-test": "property-card-link"})
-    links = [link["href"] for link in address_links]
+        data = json.loads(data_script.string)
+        results = (
+            data["props"]["pageProps"]["searchPageState"]["cat1"]["searchResults"]["listResults"]
+        )
+        for item in results:
+            address = item.get("address")
+            price = item.get("price")
+            link = item.get("detailUrl")
+            if link and link.startswith("/"):
+                link = f"https://www.zillow.com{link}"
+            listings.append({"address": address, "price": price, "link": link})
+    except Exception:
+        # fail silently if page structure changes
+        return []
 
-    listings = [dict(address=a, price=p, link=l) for a, p, l in zip(addresses, prices, links)]
     return listings
 
 
 @app.route('/')
+def home():
+    return render_template('home.html')
+
+
+@app.route('/listings')
 def index():
     listings = scrape_listings()
     return render_template('index.html', listings=listings)

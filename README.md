@@ -1,6 +1,6 @@
-# Zillow Clone Scraper and Web UI
+# Zillow Scraper and Web UI
 
-This project scrapes apartment listings from a Zillow clone site and can optionally submit the address, price, and link of each listing into a Google Form. A simple Flask UI is included to easily display the scraped listings in a table for presentation purposes.
+This project scrapes apartment listings directly from Zillow and optionally submits the address, price and listing link into a Google Form. A Flask based web UI is provided to display the scraped listings in a table.
 
 ## Features
 
@@ -42,7 +42,7 @@ Flask
 python app.py
 ```
 
-Visit `http://127.0.0.1:5000` in your browser to view the listings.
+Visit `http://127.0.0.1:5000` in your browser and click **View Listings** to fetch the latest results.
 
 Alternatively, run the command‑line script to automatically fill the form:
 
@@ -50,12 +50,12 @@ Alternatively, run the command‑line script to automatically fill the form:
 python main.py
 ```
 
-The script will open a Chrome window, scrape data from the Zillow clone, and submit each entry into your form.
+The script will open a Chrome window, scrape data from Zillow, and submit each entry into your form.
 
 ## Notes
 
 - The form fields are located using fixed XPaths. If your form layout changes, update the XPaths in the script.
-- Listings are currently pulled from: https://appbrewery.github.io/Zillow-Clone/
+- Listings are pulled directly from Zillow search results.
 
 ## To Do
 
