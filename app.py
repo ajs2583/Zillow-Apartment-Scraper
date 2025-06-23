@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import requests
 from bs4 import BeautifulSoup
 
@@ -22,10 +22,22 @@ HEADER = {
 }
 
 
-def scrape_listings():
-    """Scrape listing data from Zillow search results."""
+def scrape_listings(city: str | None = None):
+    """Scrape listing data from Zillow search results.
 
-    response = requests.get(url=ZILLOW_URL, headers=HEADER)
+    Parameters
+    ----------
+    city: str | None
+        Optional city slug used to build the Zillow URL. Spaces are replaced
+        with hyphens. If omitted, the default ``ZILLOW_URL`` is used.
+    """
+
+    url = ZILLOW_URL
+    if city:
+        slug = city.strip().replace(" ", "-")
+        url = f"https://www.zillow.com/homes/for_rent/{slug}/1-_beds/"
+
+    response = requests.get(url=url, headers=HEADER)
     soup = BeautifulSoup(response.text, "html.parser")
 
     data_script = soup.find("script", id="__NEXT_DATA__", type="application/json")
@@ -68,8 +80,35 @@ def home():
 
 @app.route('/listings')
 def index():
-    listings = scrape_listings()
-    return render_template('index.html', listings=listings)
+    city = request.args.get('city')
+    min_price = request.args.get('min_price', type=int)
+    max_price = request.args.get('max_price', type=int)
+
+    listings = scrape_listings(city)
+
+    # filter by price if numeric value available
+    if min_price is not None or max_price is not None:
+        filtered = []
+        for item in listings:
+            price_str = item.get('price') or ''
+            try:
+                price_val = int(''.join(ch for ch in price_str if ch.isdigit()))
+            except ValueError:
+                continue
+            if min_price is not None and price_val < min_price:
+                continue
+            if max_price is not None and price_val > max_price:
+                continue
+            filtered.append(item)
+        listings = filtered
+
+    return render_template(
+        'index.html',
+        listings=listings,
+        city=city or '',
+        min_price=min_price if min_price is not None else '',
+        max_price=max_price if max_price is not None else ''
+    )
 
 
 if __name__ == '__main__':
