@@ -42,7 +42,14 @@ def scrape_listings():
         )
         for item in results:
             address = item.get("address")
-            price = item.get("price")
+            # Pull the price from the json. Some results use a nested
+            # `units` list while others expose `unformattedPrice` or
+            # `price`. We try all options so that the value is populated.
+            price = (
+                item.get("price")
+                or item.get("unformattedPrice")
+                or (item.get("units") or [{}])[0].get("price")
+            )
             link = item.get("detailUrl")
             if link and link.startswith("/"):
                 link = f"https://www.zillow.com{link}"
